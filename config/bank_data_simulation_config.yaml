@@ -1,0 +1,726 @@
+# bank_data_simulation_config.yaml
+# 银行数据模拟系统配置文件
+
+# 系统基础配置
+system:
+  random_seed: 42                # 随机种子，保证可重复性
+  locale: 'zh_CN'                # 地区设置，用于生成本地化数据
+  historical_start_date: '2024-04-01'  # 历史数据开始日期
+  historical_end_date: '2025-03-30'    # 历史数据结束日期
+  batch_size: 1000               # 批处理大小，用于优化内存使用
+
+# 客户数据生成规则
+customer:
+  total_count: 10000             # 总客户数量
+  
+  # 客户类型分布
+  type_distribution:
+    personal: 0.8                # 个人客户占比
+    corporate: 0.2               # 企业客户占比
+  
+  # VIP客户比例
+  vip_ratio:
+    personal: 0.15               # 个人VIP客户比例
+    corporate: 0.35              # 企业VIP客户比例
+  
+  # 个人客户属性
+  personal:
+    # 年龄分布
+    age_distribution:
+      18-25: 0.15
+      26-40: 0.40
+      41-60: 0.35
+      60+: 0.10
+    
+    # 性别分布
+    gender_distribution:
+      male: 0.52
+      female: 0.48
+    
+    # 职业分布
+    occupation_distribution:
+      professional: 0.25
+      technical: 0.15
+      service: 0.20
+      sales: 0.10
+      administrative: 0.15
+      manual_labor: 0.10
+      retired: 0.05
+    
+    # 年收入分布（正态分布参数）
+    annual_income:
+      mean: 60000                # 均值
+      std_dev: 30000             # 标准差
+      min: 20000                 # 最小值
+      max: 300000                # 最大值
+  
+  # 企业客户属性
+  corporate:
+    # 企业规模分布
+    size_distribution:
+      small: 0.60                # 小微企业
+      medium: 0.30               # 中型企业
+      large: 0.10                # 大型企业
+    
+    # 行业分布
+    industry_distribution:
+      manufacturing: 0.25
+      service: 0.30
+      retail: 0.15
+      technology: 0.10
+      finance: 0.05
+      other: 0.15
+    
+    # 注册资本分布（按企业规模）
+    registered_capital:
+      small:
+        min: 500000
+        max: 5000000
+      medium:
+        min: 5000000
+        max: 50000000
+      large:
+        min: 50000000
+        max: 1000000000
+  
+  # 信用评分规则
+  credit_score:
+    range:
+      min: 350
+      max: 850
+    distribution:
+      excellent: 
+        range: [700, 850]
+        ratio: 0.30
+      good: 
+        range: [600, 699]
+        ratio: 0.40
+      average: 
+        range: [500, 599]
+        ratio: 0.20
+      poor: 
+        range: [350, 499]
+        ratio: 0.10
+    vip_bonus: 50                # VIP客户信用分加成
+  
+  # 客户关系规则
+  relationship:
+    manager_customer_ratio:
+      regular: 
+        min: 50
+        max: 200
+      vip: 
+        min: 35
+        max: 140                 # VIP客户经理负责客户数减少30%
+    acquisition_channel:
+      branch: 0.50
+      online: 0.30
+      referral: 0.15
+      other: 0.05
+
+# 账户数据生成规则
+account:
+  # 账户数量分布
+  count_per_customer:
+    personal:
+      mean: 2.0                  # 个人客户平均账户数
+      std_dev: 0.5
+    corporate:
+      mean: 3.2                  # 企业客户平均账户数
+      std_dev: 0.8
+    vip_multiplier: 1.4          # VIP客户账户数增加系数
+  
+  # 账户类型分布
+  type_distribution:
+    current: 0.65                # 活期账户比例
+    fixed: 0.25                  # 定期账户比例
+    loan: 0.10                   # 贷款账户比例
+  
+  # 账户余额规则
+  balance:
+    current:
+      personal:
+        min: 10000
+        max: 50000
+        mean: 25000
+        std_dev: 15000
+      corporate:
+        min: 100000
+        max: 1000000
+        mean: 300000
+        std_dev: 200000
+    fixed:
+      personal:
+        min: 50000
+        max: 200000
+        mean: 100000
+        std_dev: 50000
+      corporate:
+        min: 500000
+        max: 5000000
+        mean: 1500000
+        std_dev: 1000000
+    loan:
+      personal:
+        min: 50000
+        max: 500000
+        mean: 150000
+        std_dev: 100000
+      corporate:
+        min: 500000
+        max: 10000000
+        mean: 2000000
+        std_dev: 1500000
+  
+  # 账户状态分布
+  status_distribution:
+    active: 0.75
+    dormant: 0.18
+    frozen: 0.04
+    closed: 0.03
+  
+  # 币种分布
+  currency_distribution:
+    CNY: 0.88
+    USD: 0.08
+    EUR: 0.02
+    JPY: 0.01
+    GBP: 0.01
+
+# 交易数据生成规则
+transaction:
+  # 交易频率规则
+  frequency:
+    current:
+      transactions_per_month:
+        personal:
+          min: 10
+          max: 30
+          mean: 20
+        corporate:
+          min: 25
+          max: 70
+          mean: 45
+    fixed:
+      transactions_per_quarter:
+        personal:
+          min: 1
+          max: 3
+          mean: 2
+        corporate:
+          min: 2
+          max: 6
+          mean: 4
+    loan:
+      payment_frequency: 'monthly'  # 每月固定还款
+    vip_multiplier: 1.25         # VIP客户交易频率增加系数
+  
+  # 交易金额规则
+  amount:
+    personal:
+      small:                     # 小额交易(100-1000)
+        range: [100, 1000]
+        ratio: 0.60
+      medium:                    # 中额交易(1000-10000)
+        range: [1000, 10000]
+        ratio: 0.30
+      large:                     # 大额交易(10000以上)
+        range: [10000, 100000]
+        ratio: 0.10
+    corporate:
+      small:                     # 小额交易(1000-10000)
+        range: [1000, 10000]
+        ratio: 0.40
+      medium:                    # 中额交易(10000-100000)
+        range: [10000, 100000]
+        ratio: 0.40
+      large:                     # 大额交易(100000以上)
+        range: [100000, 1000000]
+        ratio: 0.20
+  
+  # 交易时间分布
+  time_distribution:
+    workday_ratio: 0.80          # 工作日交易占比
+    workday:
+      morning:                   # 9:00-12:00
+        ratio: 0.35
+        peak_time: '10:30'
+      lunch:                     # 12:00-14:00
+        ratio: 0.15
+        peak_time: '13:00'
+      afternoon:                 # 14:00-17:00
+        ratio: 0.30
+        peak_time: '15:30'
+      evening:                   # 17:00-22:00
+        ratio: 0.15
+        peak_time: '19:00'
+      night:                     # 22:00-次日9:00
+        ratio: 0.05
+        peak_time: '23:00'
+    weekend:
+      morning:                   # 9:00-12:00
+        ratio: 0.25
+        peak_time: '11:00'
+      afternoon:                 # 12:00-16:00
+        ratio: 0.45
+        peak_time: '14:00'
+      evening:                   # 16:00-22:00
+        ratio: 0.25
+        peak_time: '19:30'
+      night:                     # 22:00-次日9:00
+        ratio: 0.05
+        peak_time: '22:30'
+  
+  # 交易类型分布
+  type_distribution:
+    deposit: 0.18                # 存款
+    withdrawal: 0.22             # 取款
+    transfer: 0.35               # 转账
+    consumption: 0.20            # 消费
+    other: 0.05                  # 其他
+  
+  # 交易渠道分布
+  channel_distribution:
+    online_banking: 0.30         # 网银
+    mobile_app: 0.35             # 手机APP
+    atm: 0.18                    # ATM
+    counter: 0.07                # 柜台
+    third_party: 0.10            # 第三方支付
+  
+  # 交易关联规则
+  correlation:
+    salary_deposit:
+      consumption_increase: 0.5  # 工资入账后消费增加概率
+      withdrawal_increase: 0.5   # 工资入账后取款增加概率
+      effect_days: 3             # 影响持续天数
+    large_deposit:
+      fixed_deposit_probability: 0.3  # 大额存款后定期存款概率
+      investment_probability: 0.3     # 大额存款后购买理财概率
+    month_start_end:
+      bill_payment_increase: 0.45     # 月初/月末账单支付增加比例
+
+# 贷款数据生成规则
+loan:
+  # 贷款类型分布
+  type_distribution:
+    personal_consumption: 0.40   # 个人消费贷
+    mortgage: 0.30               # 住房贷款
+    car: 0.12                    # 汽车贷款
+    education: 0.08              # 教育贷款
+    small_business: 0.10         # 小微企业贷
+  
+  # 贷款期限分布
+  term_distribution:
+    short_term:                  # 短期(1年内)
+      ratio: 0.25
+      months: [3, 6, 12]
+    medium_term:                 # 中期(1-5年)
+      ratio: 0.45
+      months: [24, 36, 48, 60]
+    long_term:                   # 长期(5年以上)
+      ratio: 0.30
+      months: [72, 84, 120, 180, 240, 300, 360]
+  
+  # 贷款利率规则
+  interest_rate:
+    base_rate: 0.0325            # 央行基准利率
+    personal_consumption:
+      min_adjustment: 0.02
+      max_adjustment: 0.04
+    mortgage:
+      min_adjustment: 0.00
+      max_adjustment: 0.01
+    car:
+      min_adjustment: 0.01
+      max_adjustment: 0.03
+    small_business:
+      min_adjustment: 0.03
+      max_adjustment: 0.05
+    credit_score_impact: 0.20    # 信用评分对利率的影响系数
+  
+  # 贷款状态分布
+  status_distribution:
+    applying: 0.06               # 申请中
+    approved: 0.04               # 已批准
+    disbursed: 0.04              # 已放款
+    repaying: 0.75               # 还款中
+    settled: 0.07                # 已结清
+    overdue: 0.03                # 逾期
+    rejected: 0.01               # 拒绝
+  
+  # 贷款审批时间规则
+  approval_time:
+    small:                       # 小额贷款
+      min_days: 1
+      max_days: 3
+    medium:                      # 中额贷款
+      min_days: 3
+      max_days: 7
+    large:                       # 大额贷款
+      min_days: 7
+      max_days: 15
+    vip_time_reduction: 0.3      # VIP客户审批时间缩短比例
+
+# 理财记录生成规则
+investment:
+  # 理财产品类型分布
+  risk_level_distribution:
+    low: 0.45                    # 低风险产品
+    medium: 0.35                 # 中风险产品
+    high: 0.20                   # 高风险产品
+  
+  # 理财期限分布
+  term_distribution:
+    short_term:                  # 短期(1-3个月)
+      ratio: 0.35
+      days: [30, 60, 90]
+    medium_term:                 # 中期(3-12个月)
+      ratio: 0.45
+      days: [120, 180, 270, 365]
+    long_term:                   # 长期(12个月以上)
+      ratio: 0.20
+      days: [540, 730, 1095]
+  
+  # 理财金额规则
+  amount:
+    personal:
+      min: 50000
+      max: 200000
+      mean: 100000
+      std_dev: 50000
+    corporate:
+      min: 500000
+      max: 5000000
+      mean: 1500000
+      std_dev: 1000000
+    vip_multiplier: 1.75         # VIP客户理财金额增加系数
+  
+  # 预期收益率规则
+  expected_return:
+    low_risk:
+      min: 0.030
+      max: 0.045
+    medium_risk:
+      min: 0.045
+      max: 0.070
+    high_risk:
+      min: 0.070
+      max: 0.120
+    term_adjustment:
+      medium: 0.010              # 中期产品收益率加成
+      long: 0.015                # 长期产品收益率加成
+  
+  # 实际收益率规则
+  actual_return:
+    variance:
+      low_risk: 0.005            # 低风险产品波动范围
+      medium_risk: 0.010         # 中风险产品波动范围
+      high_risk: 0.020           # 高风险产品波动范围
+    negative_return_probability:
+      high_risk: 0.05            # 高风险产品负收益概率
+  
+  # 购买渠道分布
+  channel_distribution:
+    online_banking: 0.28
+    mobile_app: 0.45
+    counter: 0.27
+
+# APP用户数据生成规则
+app_user:
+  # APP使用率
+  penetration_rate:
+    personal: 0.65               # 个人客户APP使用率
+    corporate: 0.55              # 企业客户APP使用率
+    age_factor:
+      18-40: 0.80
+      41-60: 0.50
+      60+: 0.20
+  
+  # 活跃度分布
+  activity_level:
+    high:                        # 高度活跃(每周使用3次以上)
+      ratio: 0.35
+      weekly_usage: [3, 7]
+    medium:                      # 中度活跃(每周使用1-2次)
+      ratio: 0.35
+      weekly_usage: [1, 2]
+    low:                         # 低度活跃(每月使用1-3次)
+      ratio: 0.20
+      monthly_usage: [1, 3]
+    inactive:                    # 不活跃(超过3个月未使用)
+      ratio: 0.10
+  
+  # 设备类型分布
+  device_distribution:
+    ios: 0.50
+    android: 0.50
+    tablet_ratio: 0.08           # 平板设备占比
+  
+  # 功能使用分布
+  feature_usage:
+    account_query: 0.85
+    transfer_payment: 0.65
+    investment: 0.35
+    loan_service: 0.20
+    life_service: 0.25
+
+# 公众号粉丝数据生成规则
+wechat_follower:
+  # 关注比例
+  follow_ratio:
+    with_app: 0.55               # 拥有APP的客户关注公众号比例
+    without_app: 0.15            # 无APP的客户关注公众号比例
+  
+  # 阅读互动率
+  interaction_level:
+    high:                        # 高互动(每周至少阅读1次)
+      ratio: 0.25
+      weekly_reading: [1, 5]
+    medium:                      # 中互动(每月阅读1-3次)
+      ratio: 0.35
+      monthly_reading: [1, 3]
+    low:                         # 低互动(偶尔阅读)
+      ratio: 0.40
+      yearly_reading: [1, 12]
+  
+  # 活动参与规则
+  campaign_participation:
+    participation_rate: 0.15     # 营销活动参与率
+    conversion_rate: 0.10        # 活动转化率
+    transaction_probability_increase: 0.25  # 活动参与后交易概率增加
+
+# 全渠道档案生成规则
+channel_profile:
+  # 渠道使用分布
+  channel_count_distribution:
+    single_channel: 0.25         # 仅使用单一渠道客户占比
+    two_channels: 0.45           # 使用2个渠道客户占比
+    three_or_more: 0.30          # 使用3个以上渠道客户占比
+  
+  # 渠道偏好规则
+  channel_preference:
+    age_18_35:
+      electronic: 0.70           # 电子渠道偏好度
+      offline: 0.30              # 线下渠道偏好度
+    age_36_55:
+      electronic: 0.50
+      offline: 0.50
+    age_56_plus:
+      electronic: 0.30
+      offline: 0.70
+    corporate:
+      online_banking: 0.60       # 企业客户网银偏好度
+      wechat: 0.20               # 企业客户公众号偏好度
+  
+  # 渠道转换规则
+  channel_conversion:
+    offline_to_app:
+      monthly_rate: 0.075        # 从线下到APP的月转化率
+    app_to_wechat:
+      monthly_rate: 0.125        # 从APP到公众号的月转化率
+    wechat_to_work_wechat:
+      monthly_rate: 0.055        # 从公众号到企业微信的月转化率
+
+# 季节性和周期性规则
+seasonal_cycle:
+  # 日周期
+  daily_cycle:
+    early_morning:               # 7:00-9:00
+      ratio: 0.05
+      main_channel: 'mobile_app'
+    morning:                     # 9:00-12:00
+      ratio: 0.30
+      main_business: 'corporate'
+    noon:                        # 12:00-14:00
+      ratio: 0.15
+      increase_consumption: true
+    afternoon:                   # 14:00-17:00
+      ratio: 0.25
+    evening:                     # 17:00-22:00
+      ratio: 0.20
+      main_type: 'personal'
+    night:                       # 22:00-7:00
+      ratio: 0.05
+      main_channel: 'online'
+  
+  # 周周期
+  weekly_cycle:
+    monday:
+      ratio: 0.18
+      corporate_ratio_increase: 0.15
+    tuesday_thursday:
+      ratio: 0.17                # 每天占比
+      balanced: true
+    friday:
+      ratio: 0.20
+      salary_day: true
+      consumption_increase: 0.15
+    weekend:
+      ratio: 0.14                # 每天占比
+      volume_decrease: 0.35
+      consumption_ratio_increase: 0.20
+  
+  # 月周期
+  monthly_cycle:
+    early_month:                 # 1-10日
+      ratio: 0.40
+      salary_period: true
+      bill_payment: true
+    mid_month:                   # 11-20日
+      ratio: 0.25
+      balanced: true
+    end_month:                   # 21-31日
+      ratio: 0.35
+      corporate_settlement: true
+    salary_effect:
+      days_before: 1
+      days_after: 3
+      transaction_increase: 0.60
+  
+  # 季度周期
+  quarterly_cycle:
+    quarter_end:
+      corporate_volume_increase: 0.45
+      large_transaction_increase: 0.30
+    financial_report_period:
+      days_before: 5
+      days_after: 3
+      corporate_activity_increase: 0.40
+    tax_filing_period:
+      corporate_payment_increase: 0.50
+  
+  # 年度周期
+  yearly_cycle:
+    spring_festival:
+      weeks_before: 4
+      deposit_increase: 0.60
+      withdrawal_increase: 0.70
+    holidays:
+      volume_decrease: 0.40
+      consumption_ratio_increase: 0.30
+    summer_vacation:
+      months: [7, 8]
+      education_payment_increase: 0.45
+      travel_consumption_increase: 0.35
+    year_end:
+      month: 12
+      corporate_settlement_peak: 0.65
+    school_season:
+      months: [2, 9]
+      education_payment_concentration: 0.70
+
+# 数据关联性规则
+data_correlation:
+  # 客户-账户关联
+  customer_account:
+    high_value_multitype_probability: 0.80  # 高净值客户持有多类型账户概率
+    age_account_correlation:
+      young:                     # 年轻客户
+        current_preference: 0.70
+      middle:                    # 中年客户
+        fixed_preference: 0.60
+    corporate_size_account_correlation: 0.80  # 企业规模与账户数量相关系数
+  
+  # 账户-交易关联
+  account_transaction:
+    balance_transaction_correlation: 0.75  # 账户余额与交易频率相关系数
+    account_type_transaction_influence:
+      current:
+        consumption_ratio: 0.65
+      fixed:
+        transfer_ratio: 0.70
+    historical_pattern_consistency: 0.65  # 历史交易模式一致性
+  
+  # 客户-产品关联
+  customer_product:
+    risk_preference_correlation:
+      conservative:             # 保守型客户
+        low_risk_product_ratio: 0.80
+    age_product_correlation:
+      young:                    # 年轻客户
+        high_return_preference: 0.65
+      elderly:                  # 年长客户
+        stability_preference: 0.75
+    industry_loan_correlation: 0.70  # 客户行业与贷款产品相关系数
+  
+  # 渠道-行为关联
+  channel_behavior:
+    channel_habit_stability: 0.80  # 渠道使用习惯稳定性
+    online_transaction_frequency_increase: 0.40  # 线上渠道交易频率增加
+    multichannel_conversion_increase: 0.25  # 多渠道用户转化率增加
+
+# 数据波动与变化趋势
+data_trend:
+  # 波动幅度控制
+  fluctuation:
+    daily_fluctuation:
+      min: 0.10
+      max: 0.20
+    special_event_fluctuation:
+      min: 0.50
+      max: 1.00
+    seasonal_fluctuation:
+      min: 0.15
+      max: 0.30
+  
+  # 随机噪声添加
+  noise:
+    base_noise:
+      min: 0.01
+      max: 0.05
+    weekday_weekend_noise:
+      min: 0.05
+      max: 0.10
+    channel_difference_noise:
+      min: 0.03
+      max: 0.08
+  
+  # 成长趋势
+  growth:
+    customer_base:
+      monthly_rate: 0.01         # 客户基数月增长率
+    transaction_volume:
+      yearly_rate: 0.12          # 交易量年增长率
+    electronic_channel:
+      yearly_increase: 0.035     # 电子渠道占比年提升率
+  
+  # 衰退趋势
+  decline:
+    offline_counter:
+      yearly_rate: -0.055        # 线下柜台交易年下降率
+    paper_document:
+      yearly_rate: -0.075        # 纸质单据业务年下降率
+    traditional_deposit:
+      yearly_rate: -0.02         # 传统存款产品年下降率
+  
+  # 新兴业务趋势
+  emerging:
+    mobile_payment:
+      yearly_rate: 0.20          # 移动支付年增长率
+    online_loan:
+      yearly_rate: 0.25          # 网络贷款年增长率
+    online_investment:
+      yearly_rate: 0.15          # 线上理财年增长率
+
+# 异常数据生成规则
+anomaly:
+  # 交易异常
+  transaction_anomaly:
+    failure_rate: 0.02           # 交易失败率
+    timeout_rate: 0.01           # 交易超时率
+    duplicate_rate: 0.005        # 重复交易率
+  
+  # 账户异常
+  account_anomaly:
+    temporary_freeze_rate: 0.0075  # 账户临时冻结月率
+    abnormal_login_rate: 0.0055    # 账户异常登录月率
+    password_error_rate: 0.02      # 密码错误月率
+  
+  # 系统异常
+  system_anomaly:
+    maintenance_period:
+      transaction_reduction: 0.85   # 系统维护时段交易减少比例
+    upgrade_period:
+      transaction_fluctuation: 0.40  # 系统升级后交易波动增加比例
+    peak_period:
+      congestion_rate: 0.075         # 高峰期短时交易拥堵率
