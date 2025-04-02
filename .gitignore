@@ -17,3 +17,7 @@ Thumbs.db
 
 # 忽略验证结果文件
 validation_results_*.json
+
+# 忽略配置文件
+bank_data_simulator_config.yaml
+databases.ini
