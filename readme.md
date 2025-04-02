@@ -43,7 +43,7 @@
 
 1. 克隆仓库
    ```
-   git clone https://github.com/yourusername/bank-data-simulation.git
+   git clone git@github.com:ww-care/bank_data_simulate.git
    cd bank-data-simulation
    ```
 
