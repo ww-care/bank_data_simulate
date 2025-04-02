@@ -1,0 +1,19 @@
+# 忽略日志文件
+logs/
+*.log
+
+# 忽略Python缓存文件
+__pycache__/
+*.pyc
+*.pyo
+
+# 忽略虚拟环境
+venv/
+.env/
+
+# 忽略操作系统生成的文件
+.DS_Store
+Thumbs.db
+
+# 忽略验证结果文件
+validation_results_*.json
