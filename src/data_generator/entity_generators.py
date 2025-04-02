@@ -573,7 +573,7 @@ class DepositTypeGenerator(BaseEntityGenerator):
             record = {
                 'deposit_type_id': deposit_type_id,
                 'name': deposit_type['name'],
-                'description': f"{deposit_type['name']}，{'不定期' if deposit_type['max_term'] == 0 else f'{deposit_type['min_term']}个月'}，利率{deposit_type['base_rate']*100}%",
+                'description': f"('不定期' if deposit_type['max_term'] == 0 else f\"{deposit_type['min_term']}个月\")",
                 'base_interest_rate': deposit_type['base_rate'],
                 'min_term': deposit_type['min_term'],
                 'max_term': deposit_type['max_term'],
@@ -1549,7 +1549,7 @@ class AppUserGenerator(BaseEntityGenerator):
                 'login_frequency': random.choice(weekly_usage) if activity in ['high', 'medium'] else 
                                   random.choice(monthly_usage) if activity == 'low' else 0,
                 'push_notification': random.choice([True, False]),
-                'version': f"{random.randint(5, 8)}.{random.randint(0, 9)}.{random.randint(0, 9)}"
+                'app_version': f"{random.randint(5, 8)}.{random.randint(0, 9)}.{random.randint(0, 9)}"
             }
             
             app_users.append(app_user)

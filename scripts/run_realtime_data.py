@@ -108,20 +108,38 @@ def main():
             details=f'开始生成实时数据: {start_time} 至 {end_time}'
         )
         
-        # TODO: 调用数据生成模块生成实时数据
-        # 这里应该调用DataGenerator的生成方法
-        logger.info("数据生成器尚未实现，仅执行框架测试")
+        # 调用数据生成模块生成实时数据
+        from src.data_generator.data_generator import get_data_generator
+        from src.data_validator import get_validator
+        
+        logger.info("开始调用数据生成器生成实时数据...")
+        data_generator = get_data_generator()
         
         # 如果时间范围跨越多个小时，可以按小时分割生成
         time_slots = time_manager.split_time_range(start_time, end_time)
         total_records = 0
+        slot_results = {}
         
         for slot_start, slot_end in time_slots:
             logger.info(f"生成时间段 {slot_start} - {slot_end} 的数据")
-            # TODO: 为每个时间段生成数据
-            time.sleep(1)  # 模拟数据生成耗时
-            slot_records = 0  # 该时间段生成的记录数
+            # 调用数据生成器生成指定时间段的数据
+            slot_stats = data_generator.generate_data_for_timeperiod(slot_start, slot_end, mode='realtime')
+            slot_records = sum(slot_stats.values())
             total_records += slot_records
+            slot_results[f"{slot_start}-{slot_end}"] = slot_records
+            logger.info(f"时间段 {slot_start} - {slot_end} 生成了 {slot_records} 条记录")
+        
+        # 验证生成的数据
+        if total_records > 0:
+            logger.info("开始验证生成的实时数据...")
+            validator = get_validator()
+            validation_results = validator.validate(data_generator.data_cache)
+            
+            logger.info(f"数据验证完成，状态: {validation_results['status']}")
+            if validation_results['status'] == 'failed':
+                logger.warning(f"数据验证发现 {validation_results['total_errors']} 个错误")
+        else:
+            logger.info("没有生成新的实时数据记录，跳过验证步骤")
         
         # 记录完成状态
         exec_end_time = time_manager.get_current_time()
@@ -134,7 +152,7 @@ def main():
             start_date=time_manager.format_date(start_time.date()),
             end_date=time_manager.format_date(end_time.date()),
             records_generated=total_records,
-            details=f'实时数据生成完成: {start_time} 至 {end_time}, 共生成 {total_records} 条记录'
+            details=f'实时数据生成完成: {start_time} 至 {end_time}, 共生成 {total_records} 条记录, 分布: {slot_results}'
         )
         
         execution_time = (exec_end_time - exec_start_time).total_seconds()

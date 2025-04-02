@@ -1,0 +1,24 @@
+# 基础依赖
+pandas==2.0.0
+numpy==1.24.3
+PyYAML==6.0.1
+python-dateutil==2.8.2
+pytz==2023.3
+tqdm==4.66.1
+
+# 数据库依赖
+mysql-connector-python==8.1.0
+
+# 数据生成依赖
+Faker==18.13.0
+scipy==1.10.1
+
+# 命令行工具
+typer==0.9.0
+rich==13.4.2
+
+# 定时调度
+schedule==1.2.0
+
+# 数据验证
+jsonschema==4.18.0

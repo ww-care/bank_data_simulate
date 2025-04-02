@@ -8,3 +8,53 @@
 2025-04-02 14:45:24,809 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
 2025-04-02 14:45:24,810 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
 
+2025-04-02 21:54:50,982 - scheduler - INFO - 调度管理器启动...
+2025-04-02 21:54:50,982 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 21:54:50,982 - scheduler - INFO - 执行命令: /Users/vv/Desktop/bank_data_simulation/.venv/bin/python /Users/vv/Desktop/bank_data_simulation/scripts/run_realtime_data.py --log-level info
+2025-04-02 21:54:58,471 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 21:54:58,471 - scheduler - ERROR - 错误信息: 2025-04-02 21:54:58,309 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 21:54:58,328 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 21:54:58,438 - database_manager - ERROR - 数据库连接错误: 1044 (42000): Access denied for user 'simulate_data_user'@'%' to database 'bank_data_simulation'
+2025-04-02 21:54:58,438 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 21:54:58,438 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+
+2025-04-02 22:01:30,641 - scheduler - INFO - 调度管理器启动...
+2025-04-02 22:01:30,642 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 22:01:30,642 - scheduler - INFO - 执行命令: /Users/vv/Desktop/bank_data_simulation/.venv/bin/python /Users/vv/Desktop/bank_data_simulation/scripts/run_realtime_data.py --log-level info
+2025-04-02 22:01:32,173 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 22:01:32,173 - scheduler - ERROR - 错误信息: 2025-04-02 22:01:32,020 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 22:01:32,041 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:01:32,139 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:01:32,140 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:01:32,140 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+
+2025-04-02 22:03:16,558 - scheduler - INFO - 调度管理器启动...
+2025-04-02 22:03:16,558 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 22:03:16,558 - scheduler - INFO - 执行命令: /Users/vv/Desktop/bank_data_simulation/.venv/bin/python /Users/vv/Desktop/bank_data_simulation/scripts/run_realtime_data.py --log-level info
+2025-04-02 22:03:16,909 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 22:03:16,909 - scheduler - ERROR - 错误信息: 2025-04-02 22:03:16,796 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 22:03:16,809 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:03:16,886 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:03:16,886 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:03:16,886 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+
+2025-04-02 22:03:49,555 - scheduler - INFO - 调度管理器启动...
+2025-04-02 22:03:49,555 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 22:03:49,555 - scheduler - INFO - 执行命令: /Users/vv/Desktop/bank_data_simulation/.venv/bin/python /Users/vv/Desktop/bank_data_simulation/scripts/run_realtime_data.py --log-level info
+2025-04-02 22:03:49,921 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 22:03:49,921 - scheduler - ERROR - 错误信息: 2025-04-02 22:03:49,794 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 22:03:49,807 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:03:49,898 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:03:49,898 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:03:49,898 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+
+2025-04-02 22:07:27,218 - scheduler - INFO - 调度管理器启动...
+2025-04-02 22:07:27,219 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 22:07:27,219 - scheduler - INFO - 执行命令: /Users/vv/Desktop/bank_data_simulation/.venv/bin/python /Users/vv/Desktop/bank_data_simulation/scripts/run_realtime_data.py --log-level info
+2025-04-02 22:07:27,751 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 22:07:27,751 - scheduler - ERROR - 错误信息: 2025-04-02 22:07:27,517 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 22:07:27,538 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:07:27,655 - database_manager - INFO - 成功连接到MySQL数据库，版本: 8.0.41
+2025-04-02 22:07:27,708 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+2025-04-02 22:07:27,717 - database_manager - INFO - 数据库连接已关闭
+

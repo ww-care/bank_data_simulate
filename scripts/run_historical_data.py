@@ -74,10 +74,29 @@ def main():
             details='开始生成历史数据'
         )
         
-        # TODO: 调用数据生成模块生成历史数据
-        # 这里应该调用DataGenerator的生成方法
-        logger.info("数据生成器尚未实现，仅执行框架测试")
-        time.sleep(2)  # 模拟数据生成耗时
+        # 调用数据生成模块生成历史数据
+        from src.data_generator.data_generator import get_data_generator
+        from src.data_validator import get_validator
+        
+        logger.info("开始调用数据生成器生成历史数据...")
+        data_generator = get_data_generator()
+        
+        # 生成历史数据
+        generation_stats = data_generator.generate_data(start_date, end_date, mode='historical')
+        
+        # 记录生成的数据统计信息
+        total_records = sum(generation_stats.values())
+        details = f"历史数据生成完成，共生成 {total_records} 条记录"
+        logger.info(details)
+        
+        # 验证生成的数据
+        logger.info("开始验证生成的数据...")
+        validator = get_validator()
+        validation_results = validator.validate(data_generator.data_cache)
+        
+        logger.info(f"数据验证完成，状态: {validation_results['status']}")
+        if validation_results['status'] == 'failed':
+            logger.warning(f"数据验证发现 {validation_results['total_errors']} 个错误")
         
         # 记录完成状态
         end_time = time_manager.get_current_time()
@@ -89,7 +108,7 @@ def main():
             status='success',
             start_date=time_manager.format_date(start_date),
             end_date=time_manager.format_date(end_date),
-            records_generated=0,  # 实际生成的记录数
+            records_generated=total_records,  # 实际生成的记录数
             details='历史数据生成完成'
         )
         

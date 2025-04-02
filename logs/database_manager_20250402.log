@@ -1,3 +1,90 @@
 2025-04-02 14:45:22,611 - database_manager - INFO - 正在连接到 mysql 数据库: localhost:3306...
 2025-04-02 14:45:24,809 - database_manager - ERROR - 数据库连接错误: 2002: Can't connect to local MySQL server through socket '%-.100s' (%s) (Warning: not all arguments converted during string formatting)
 2025-04-02 14:45:24,809 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 21:54:58,328 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 21:54:58,438 - database_manager - ERROR - 数据库连接错误: 1044 (42000): Access denied for user 'simulate_data_user'@'%' to database 'bank_data_simulation'
+2025-04-02 21:54:58,438 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:01:32,041 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:01:32,139 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:01:32,140 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:03:16,809 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:03:16,886 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:03:16,886 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:03:49,807 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:03:49,898 - database_manager - ERROR - 数据库连接错误: 1049 (42000): Unknown database 'bank_data_simulation'
+2025-04-02 22:03:49,898 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 22:07:27,538 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:07:27,655 - database_manager - INFO - 成功连接到MySQL数据库，版本: 8.0.41
+2025-04-02 22:07:27,717 - database_manager - INFO - 数据库连接已关闭
+2025-04-02 22:10:37,112 - database_manager - WARNING - SQL目录不存在: /Users/vv/Desktop/bank_data_simulation/sql，将使用内置SQL创建表
+2025-04-02 22:10:37,113 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:10:37,237 - database_manager - INFO - 成功连接到MySQL数据库，版本: 8.0.41
+2025-04-02 22:10:37,298 - database_manager - INFO - 正在创建表 customer...
+2025-04-02 22:10:37,386 - database_manager - INFO - 表 customer 创建成功
+2025-04-02 22:10:37,427 - database_manager - INFO - 正在创建表 fund_account...
+2025-04-02 22:10:37,522 - database_manager - INFO - 表 fund_account 创建成功
+2025-04-02 22:10:37,564 - database_manager - INFO - 正在创建表 account_transaction...
+2025-04-02 22:10:37,661 - database_manager - INFO - 表 account_transaction 创建成功
+2025-04-02 22:10:37,700 - database_manager - INFO - 正在创建表 loan_record...
+2025-04-02 22:10:37,796 - database_manager - INFO - 表 loan_record 创建成功
+2025-04-02 22:10:37,837 - database_manager - INFO - 正在创建表 investment_record...
+2025-04-02 22:10:37,947 - database_manager - INFO - 表 investment_record 创建成功
+2025-04-02 22:10:37,983 - database_manager - INFO - 正在创建表 product...
+2025-04-02 22:10:38,062 - database_manager - INFO - 表 product 创建成功
+2025-04-02 22:10:38,103 - database_manager - INFO - 正在创建表 customer_event...
+2025-04-02 22:10:38,208 - database_manager - INFO - 表 customer_event 创建成功
+2025-04-02 22:10:38,256 - database_manager - INFO - 正在创建表 app_user...
+2025-04-02 22:10:38,334 - database_manager - INFO - 表 app_user 创建成功
+2025-04-02 22:10:38,373 - database_manager - INFO - 正在创建表 wechat_follower...
+2025-04-02 22:10:38,456 - database_manager - INFO - 表 wechat_follower 创建成功
+2025-04-02 22:10:38,497 - database_manager - INFO - 正在创建表 work_wechat_contact...
+2025-04-02 22:10:38,574 - database_manager - INFO - 表 work_wechat_contact 创建成功
+2025-04-02 22:10:38,617 - database_manager - INFO - 正在创建表 bank_manager...
+2025-04-02 22:10:38,695 - database_manager - INFO - 表 bank_manager 创建成功
+2025-04-02 22:10:38,733 - database_manager - INFO - 正在创建表 channel_profile...
+2025-04-02 22:10:38,809 - database_manager - INFO - 表 channel_profile 创建成功
+2025-04-02 22:10:38,853 - database_manager - INFO - 正在创建表 deposit_type...
+2025-04-02 22:10:38,925 - database_manager - INFO - 表 deposit_type 创建成功
+2025-04-02 22:10:38,965 - database_manager - INFO - 正在创建表 data_generation_log...
+2025-04-02 22:10:39,064 - database_manager - INFO - 表 data_generation_log 创建成功
+2025-04-02 22:10:39,202 - database_manager - ERROR - 更新执行错误: 1406 (22001): Data too long for column 'log_id' at row 1
+2025-04-02 22:10:39,212 - database_manager - ERROR - 记录数据生成日志时出错: 1406 (22001): Data too long for column 'log_id' at row 1
+2025-04-02 22:10:41,297 - database_manager - ERROR - 更新执行错误: 1406 (22001): Data too long for column 'log_id' at row 1
+2025-04-02 22:10:41,306 - database_manager - ERROR - 记录数据生成日志时出错: 1406 (22001): Data too long for column 'log_id' at row 1
+2025-04-02 22:10:41,318 - database_manager - INFO - 数据库连接已关闭
+2025-04-02 22:14:14,533 - database_manager - WARNING - SQL目录不存在: /Users/vv/Desktop/bank_data_simulation/sql，将使用内置SQL创建表
+2025-04-02 22:14:14,533 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 22:14:14,655 - database_manager - INFO - 成功连接到MySQL数据库，版本: 8.0.41
+2025-04-02 22:14:14,715 - database_manager - INFO - 表 customer 已存在，跳过创建
+2025-04-02 22:14:14,756 - database_manager - INFO - 表 fund_account 已存在，跳过创建
+2025-04-02 22:14:14,797 - database_manager - INFO - 表 account_transaction 已存在，跳过创建
+2025-04-02 22:14:14,838 - database_manager - INFO - 表 loan_record 已存在，跳过创建
+2025-04-02 22:14:14,879 - database_manager - INFO - 表 investment_record 已存在，跳过创建
+2025-04-02 22:14:14,918 - database_manager - INFO - 表 product 已存在，跳过创建
+2025-04-02 22:14:14,959 - database_manager - INFO - 表 customer_event 已存在，跳过创建
+2025-04-02 22:14:15,000 - database_manager - INFO - 表 app_user 已存在，跳过创建
+2025-04-02 22:14:15,043 - database_manager - INFO - 表 wechat_follower 已存在，跳过创建
+2025-04-02 22:14:15,085 - database_manager - INFO - 表 work_wechat_contact 已存在，跳过创建
+2025-04-02 22:14:15,125 - database_manager - INFO - 表 bank_manager 已存在，跳过创建
+2025-04-02 22:14:15,166 - database_manager - INFO - 表 channel_profile 已存在，跳过创建
+2025-04-02 22:14:15,205 - database_manager - INFO - 表 deposit_type 已存在，跳过创建
+2025-04-02 22:14:15,246 - database_manager - INFO - 表 data_generation_log 已存在，跳过创建
+2025-04-02 22:14:17,490 - database_manager - INFO - 数据库连接已关闭
+2025-04-02 23:28:01,646 - database_manager - INFO - 正在连接到 mysql 数据库: 47.116.119.213:5418...
+2025-04-02 23:28:01,742 - database_manager - INFO - 成功连接到MySQL数据库，版本: 8.0.41
+2025-04-02 23:28:01,779 - database_manager - WARNING - SQL目录不存在: /Users/vv/Desktop/bank_data_simulation/sql，将使用内置SQL创建表
+2025-04-02 23:28:01,836 - database_manager - INFO - 表 customer 已存在，跳过创建
+2025-04-02 23:28:01,873 - database_manager - INFO - 表 fund_account 已存在，跳过创建
+2025-04-02 23:28:01,906 - database_manager - INFO - 表 account_transaction 已存在，跳过创建
+2025-04-02 23:28:01,940 - database_manager - INFO - 表 loan_record 已存在，跳过创建
+2025-04-02 23:28:01,973 - database_manager - INFO - 表 investment_record 已存在，跳过创建
+2025-04-02 23:28:02,007 - database_manager - INFO - 表 product 已存在，跳过创建
+2025-04-02 23:28:02,040 - database_manager - INFO - 表 customer_event 已存在，跳过创建
+2025-04-02 23:28:02,074 - database_manager - INFO - 表 app_user 已存在，跳过创建
+2025-04-02 23:28:02,107 - database_manager - INFO - 表 wechat_follower 已存在，跳过创建
+2025-04-02 23:28:02,144 - database_manager - INFO - 表 work_wechat_contact 已存在，跳过创建
+2025-04-02 23:28:02,178 - database_manager - INFO - 表 bank_manager 已存在，跳过创建
+2025-04-02 23:28:02,212 - database_manager - INFO - 表 channel_profile 已存在，跳过创建
+2025-04-02 23:28:02,245 - database_manager - INFO - 表 deposit_type 已存在，跳过创建
+2025-04-02 23:28:02,278 - database_manager - INFO - 表 data_generation_log 已存在，跳过创建
+2025-04-02 23:28:02,783 - database_manager - INFO - 数据库连接已关闭
