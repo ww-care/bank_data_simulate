@@ -1,0 +1,34 @@
+{
+  "status": "failed",
+  "total_errors": 1,
+  "total_warnings": 0,
+  "error_counts": {
+    "data_uniqueness": 1
+  },
+  "warnings_counts": {},
+  "entity_stats": {
+    "customer": 2,
+    "fund_account": 2
+  },
+  "validation_time": "2025-04-02 18:28:21",
+  "detail_results": {
+    "data_completeness": {
+      "status": "success",
+      "errors": [],
+      "warnings": []
+    },
+    "data_uniqueness": {
+      "status": "failed",
+      "errors": [
+        "实体类型 fund_account 中存在 1 个重复ID",
+        "  - 重复ID示例: A001"
+      ],
+      "warnings": []
+    },
+    "data_types": {
+      "status": "success",
+      "errors": [],
+      "warnings": []
+    }
+  }
+}

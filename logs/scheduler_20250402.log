@@ -1,0 +1,10 @@
+2025-04-02 14:45:20,826 - scheduler - INFO - 调度管理器启动...
+2025-04-02 14:45:20,827 - scheduler - INFO - 测试模式：立即执行一次任务并退出
+2025-04-02 14:45:20,827 - scheduler - INFO - 执行命令: C:\Python313\python.exe D:\Desktop\bank_data_simulation\scripts\run_realtime_data.py --log-level info
+2025-04-02 14:45:24,893 - scheduler - ERROR - 实时数据生成任务执行失败，退出码: 1
+2025-04-02 14:45:24,893 - scheduler - ERROR - 错误信息: 2025-04-02 14:45:22,272 - realtime_data - INFO - 开始生成银行实时数据...
+2025-04-02 14:45:22,611 - database_manager - INFO - 正在连接到 mysql 数据库: localhost:3306...
+2025-04-02 14:45:24,809 - database_manager - ERROR - 数据库连接错误: 2002: Can't connect to local MySQL server through socket '%-.100s' (%s) (Warning: not all arguments converted during string formatting)
+2025-04-02 14:45:24,809 - database_manager - ERROR - 检查表是否存在时出错: 无法连接到数据库
+2025-04-02 14:45:24,810 - realtime_data - ERROR - 数据库表不存在，请先运行历史数据生成脚本创建表结构
+
