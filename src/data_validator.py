@@ -70,6 +70,18 @@ class DataValidator:
         type_result = self._validate_data_types(data_cache)
         self.validation_results["data_types"] = type_result
         
+        # 验证外键有效性
+        foreign_key_result = self._validate_foreign_keys(data_cache)
+        self.validation_results["foreign_keys"] = foreign_key_result
+        
+        # 验证时间顺序逻辑
+        time_sequence_result = self._validate_time_sequence(data_cache)
+        self.validation_results["time_sequence"] = time_sequence_result
+        
+        # 验证总体数据量
+        data_volume_result = self._validate_data_volume(data_cache)
+        self.validation_results["data_volume"] = data_volume_result
+        
         # 计算总体验证结果
         total_errors = sum(self.error_counts.values())
         total_warnings = sum(len(warnings) for warnings in self.warnings.values())
@@ -112,6 +124,28 @@ class DataValidator:
             self.logger.info(f"验证结果已保存到: {file_path}")
         except Exception as e:
             self.logger.error(f"保存验证结果到文件时出错: {str(e)}")
+    
+    def _parse_date(self, date_str: str) -> datetime.date:
+        """解析日期字符串为日期对象"""
+        if not date_str:
+            raise ValueError("日期字符串为空")
+            
+        # 尝试不同格式的日期解析
+        formats = [
+            '%Y-%m-%d',        # 2021-01-01
+            '%Y/%m/%d',        # 2021/01/01
+            '%Y-%m-%d %H:%M:%S', # 2021-01-01 12:34:56
+            '%Y/%m/%d %H:%M:%S'  # 2021/01/01 12:34:56
+        ]
+        
+        for fmt in formats:
+            try:
+                dt = datetime.datetime.strptime(date_str, fmt)
+                return dt.date() if '%H' not in fmt else dt
+            except ValueError:
+                continue
+                
+        raise ValueError(f"无法解析日期字符串: {date_str}")
     
     def _validate_data_completeness(self, data_cache: Dict[str, List[Dict]]) -> Dict[str, Any]:
         """验证数据完整性（必填字段不为空）"""
@@ -225,121 +259,6 @@ class DataValidator:
         if error_count > 0:
             result["status"] = "failed"
             self.error_counts["data_uniqueness"] = error_count
-        
-        return result
-    
-    def _validate_data_types(self, data_cache: Dict[str, List[Dict]]) -> Dict[str, Any]:
-        """验证数据类型一致性"""
-        result = {"status": "success", "errors": [], "warnings": []}
-        error_count = 0
-        
-        # 各字段的预期数据类型
-        field_types = [
-            # (实体, 字段, 期望类型, 说明)
-            ("customer", "customer_id", str, "客户ID"),
-            ("customer", "credit_score", (int, float), "信用分"),
-            ("customer", "is_vip", bool, "是否VIP"),
-            ("customer", "registration_date", str, "注册日期"),
-            
-            ("bank_manager", "manager_id", str, "经理ID"),
-            ("bank_manager", "customer_count", (int, float), "客户数量"),
-            
-            ("product", "product_id", str, "产品ID"),
-            ("product", "interest_rate", (int, float), "利率"),
-            ("product", "expected_return", (int, float), "预期回报"),
-            
-            ("fund_account", "account_id", str, "账户ID"),
-            ("fund_account", "balance", (int, float), "余额"),
-            ("fund_account", "interest_rate", (int, float), "利率"),
-            
-            ("account_transaction", "transaction_id", str, "交易ID"),
-            ("account_transaction", "account_id", str, "账户ID"),
-            ("account_transaction", "amount", (int, float), "交易金额"),
-            ("account_transaction", "transaction_datetime", str, "交易时间"),
-            
-            ("loan_record", "loan_id", str, "贷款ID"),
-            ("loan_record", "loan_amount", (int, float), "贷款金额"),
-            ("loan_record", "interest_rate", (int, float), "贷款利率"),
-            
-            ("investment_record", "investment_id", str, "投资ID"),
-            ("investment_record", "amount", (int, float), "投资金额"),
-            
-            ("app_user", "app_user_id", str, "APP用户ID"),
-            ("app_user", "login_frequency", (int, float), "登录频率"),
-            
-            ("customer_event", "event_id", str, "事件ID"),
-            ("customer_event", "event_datetime", str, "事件时间")
-        ]
-        
-        # 验证每个字段的数据类型
-        for entity, field, expected_type, description in field_types:
-            if entity not in data_cache:
-                continue
-                
-            data_list = data_cache[entity]
-            type_errors = []
-            
-            for data in data_list:
-                if field not in data or data[field] is None:
-                    continue  # 字段不存在或为空
-                
-                value = data[field]
-                id_field = next((f for f in data.keys() if 'id' in f.lower()), None)
-                data_id = data.get(id_field, "unknown") if id_field else "未知"
-                
-                # 如果期望类型是元组，表示多个可接受的类型
-                if isinstance(expected_type, tuple):
-                    if not any(isinstance(value, t) for t in expected_type):
-                        # 尝试转换字符串到数值
-                        if (int in expected_type or float in expected_type) and isinstance(value, str):
-                            try:
-                                float(value)  # 检查是否可以转换为数值
-                                continue  # 可以转换，则视为类型正确
-                            except (ValueError, TypeError):
-                                pass  # 转换失败，记录错误
-                                
-                        type_errors.append((data_id, value, type(value).__name__))
-                else:
-                    if not isinstance(value, expected_type):
-                        # 尝试转换字符串
-                        if expected_type in (int, float) and isinstance(value, str):
-                            try:
-                                if expected_type == int:
-                                    int(value)
-                                else:
-                                    float(value)
-                                continue  # 可以转换，则视为类型正确
-                            except (ValueError, TypeError):
-                                pass  # 转换失败，记录错误
-                                
-                        # 尝试转换布尔值
-                        if expected_type == bool and isinstance(value, (int, str)):
-                            if isinstance(value, int) and value in (0, 1):
-                                continue
-                            if isinstance(value, str) and value.lower() in ('true', 'false', '0', '1'):
-                                continue
-                                
-                        type_errors.append((data_id, value, type(value).__name__))
-            
-            if type_errors:
-                error_count += len(type_errors)
-                error_msg = f"实体类型 {entity} 中有 {len(type_errors)} 条记录的 {field} 字段类型不匹配"
-                result["errors"].append(error_msg)
-                
-                expected_type_name = (
-                    expected_type.__name__ if not isinstance(expected_type, tuple) 
-                    else " 或 ".join(t.__name__ for t in expected_type)
-                )
-                result["errors"].append(f"  - 期望类型: {expected_type_name} ({description})")
-                
-                for rec_id, value, actual_type in type_errors[:5]:  # 只显示前5个错误
-                    result["errors"].append(f"  - 类型错误: ID={rec_id}, 值={value}, 实际类型={actual_type}")
-                
-                self.logger.error(error_msg)
-        
-        if error_count > 0:
-            result["status"] = "failed"
-            self.error_counts["data_types"] = error_count
         
         return result
 
