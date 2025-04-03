@@ -7,7 +7,7 @@ account:
         min: 100000
         std_dev: 200000
       personal:
-        max: 50000
+        max: 5000000
         mean: 25000
         min: 10000
         std_dev: 15000
@@ -217,7 +217,7 @@ customer:
       vip:
         max: 140
         min: 35
-  total_count: 5
+  total_count: 1000000
   type_distribution:
     corporate: 0.2
     personal: 0.8
@@ -506,7 +506,7 @@ seasonal_cycle:
       month: 12
 system:
   batch_size: 1000
-  historical_end_date: '2025-03-30'
+  historical_end_date: '2025-04-03'
   historical_start_date: '2024-04-01'
   locale: zh_CN
   random_seed: 42

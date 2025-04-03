@@ -6,15 +6,18 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+# 设置 PYTHONPATH
+export PYTHONPATH="$SCRIPT_DIR"
+
 # 检查虚拟环境
-if [ ! -d "venv" ]; then
+if [ ! -d ".venv" ]; then
     echo "创建Python虚拟环境..."
     python3 -m venv venv
     source venv/bin/activate
     pip install --upgrade pip
     pip install -r requirements.txt
 else
-    source venv/bin/activate
+    source .venv/bin/activate
 fi
 
 # 函数：显示帮助信息
