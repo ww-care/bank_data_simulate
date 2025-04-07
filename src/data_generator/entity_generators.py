@@ -13,6 +13,7 @@ import datetime
 import faker
 import numpy as np
 import pandas as pd
+import copy
 from typing import Dict, List, Tuple, Optional, Any, Union
 
 
@@ -952,7 +953,7 @@ class TransactionGenerator(BaseEntityGenerator):
             return f"其他交易，{amount:.2f}元"
         
 class LoanRecordGenerator(BaseEntityGenerator):
-    """贷款记录生成器"""
+    """贷款记录生成器 - 优化版"""
     
     def generate(self, customers: List[Dict], fund_accounts: List[Dict]) -> List[Dict]:
         """
@@ -991,164 +992,217 @@ class LoanRecordGenerator(BaseEntityGenerator):
         # 当前日期
         today = datetime.date.today()
         
-        # 按客户筛选出有贷款资质的客户
-        eligible_customers = []
-        for customer in customers:
-            # 获取客户的账户
-            customer_accounts = [acc for acc in fund_accounts if acc['customer_id'] == customer['customer_id']]
-            if not customer_accounts:
+        # 优化点1: 预先构建账户映射，避免重复查询
+        account_map = {}
+        for account in fund_accounts:
+            customer_id = account.get('customer_id')
+            if not customer_id:
                 continue
                 
-            # 信用评分要求
-            credit_score = customer.get('credit_score', 0)
-            if credit_score < 550:  # 信用分低于550不发放贷款
-                continue
-                
-            is_vip = customer.get('is_vip', False)
-            is_personal = customer.get('customer_type') == 'personal'
-            
-            eligible_customers.append({
-                'customer': customer,
-                'accounts': customer_accounts,
-                'is_vip': is_vip,
-                'is_personal': is_personal
-            })
+            if customer_id not in account_map:
+                account_map[customer_id] = []
+            account_map[customer_id].append(account)
         
-        # 确定发放贷款的比例（根据信用分和VIP状态调整）
-        loan_ratio = 0.30  # 默认30%的合格客户有贷款
-        
-        # 随机选择一部分客户发放贷款
-        selected_count = int(len(eligible_customers) * loan_ratio)
-        selected_customers = random.sample(eligible_customers, min(selected_count, len(eligible_customers)))
-        
+        # 优化点2: 批量处理，分批筛选客户
+        batch_size = 1000  # 每批处理的客户数量
         loan_records = []
         
-        for selected in selected_customers:
-            customer = selected['customer']
-            accounts = selected['accounts']
-            is_vip = selected['is_vip']
-            is_personal = selected['is_personal']
+        # 优化点3: 预计算常用值
+        loan_ratio = 0.30  # 默认30%的合格客户有贷款
+        
+        for i in range(0, len(customers), batch_size):
+            batch_customers = customers[i:min(i+batch_size, len(customers))]
             
-            # 个人客户和企业客户适用的贷款类型不同
-            if is_personal:
-                # 个人客户：个人消费贷、住房贷款、汽车贷款、教育贷款
-                suitable_types = ['personal_consumption', 'mortgage', 'car', 'education']
-                suitable_weights = [0.50, 0.30, 0.12, 0.08]  # 按比例调整
-            else:
-                # 企业客户：小微企业贷
-                suitable_types = ['small_business']
-                suitable_weights = [1.0]
+            # 优化点4: 提前计算不变的值
+            term_categories = list(term_config.keys())
+            term_weights = [term_config[cat].get('ratio', 0.33) for cat in term_categories]
             
-            # 生成贷款记录
-            loan_id = self.generate_id('L')
+            # 按客户筛选出有贷款资质的客户
+            eligible_customers = []
+            for customer in batch_customers:
+                customer_id = customer.get('customer_id')
+                
+                # 获取客户的账户
+                customer_accounts = account_map.get(customer_id, [])
+                if not customer_accounts:
+                    continue
+                    
+                # 信用评分要求
+                credit_score = customer.get('credit_score', 0)
+                if isinstance(credit_score, str):
+                    try:
+                        credit_score = float(credit_score)
+                    except (ValueError, TypeError):
+                        credit_score = 0
+                        
+                if credit_score < 550:  # 信用分低于550不发放贷款
+                    continue
+                    
+                is_vip = customer.get('is_vip', False)
+                is_personal = customer.get('customer_type') == 'personal'
+                
+                eligible_customers.append({
+                    'customer': customer,
+                    'accounts': customer_accounts,
+                    'is_vip': is_vip,
+                    'is_personal': is_personal,
+                    'credit_score': credit_score  # 缓存转换后的信用分
+                })
             
-            # 确定贷款类型
-            loan_type = self.random_choice(suitable_types, suitable_weights)
+            # 随机选择一部分客户发放贷款
+            selected_count = int(len(eligible_customers) * loan_ratio)
+            if selected_count == 0 and eligible_customers:
+                selected_count = 1  # 至少选择一个客户
+                
+            # 优化点5: 避免对空列表进行采样
+            if not eligible_customers:
+                continue
+                
+            selected_customers = random.sample(eligible_customers, min(selected_count, len(eligible_customers)))
             
-            # 确定贷款期限
-            term_dist = term_config.copy()
-            if loan_type == 'mortgage':
-                # 住房贷款以长期为主
-                term_dist['short_term']['ratio'] = 0.05
-                term_dist['medium_term']['ratio'] = 0.15
-                term_dist['long_term']['ratio'] = 0.80
-            elif loan_type == 'small_business':
-                # 小微企业贷以中短期为主
-                term_dist['short_term']['ratio'] = 0.30
-                term_dist['medium_term']['ratio'] = 0.60
-                term_dist['long_term']['ratio'] = 0.10
+            # 优化点6: 预计算贷款类型和期限映射，减少循环内的计算
+            personal_loan_types = ['personal_consumption', 'mortgage', 'car', 'education']
+            personal_loan_weights = [0.50, 0.30, 0.12, 0.08]
+            corporate_loan_types = ['small_business']
+            corporate_loan_weights = [1.0]
             
-            term_categories = list(term_dist.keys())
-            term_weights = [term_dist[cat].get('ratio', 0.33) for cat in term_categories]
-            
-            term_category = self.random_choice(term_categories, term_weights)
-            term_months = self.random_choice(term_dist[term_category]['months'])
-            
-            # 贷款金额范围
-            if loan_type == 'personal_consumption':
-                min_amount, max_amount = 10000, 200000
-            elif loan_type == 'mortgage':
-                min_amount, max_amount = 300000, 3000000
-            elif loan_type == 'car':
-                min_amount, max_amount = 50000, 500000
-            elif loan_type == 'education':
-                min_amount, max_amount = 20000, 150000
-            else:  # 小微企业贷
-                min_amount, max_amount = 200000, 5000000
-            
-            # 根据信用分和VIP状态调整金额上限
-            credit_score = customer.get('credit_score', 650)
-            
-            if credit_score > 700:
-                max_amount *= 1.2
-            if is_vip:
-                max_amount *= 1.3
-            
-            # 生成贷款金额
-            loan_amount = round(random.uniform(min_amount, max_amount), 2)
-            
-            # 计算利率
-            # 基准利率 + 贷款类型调整 + 信用评分影响
-            type_adjustment_min = interest_config.get(loan_type, {}).get('min_adjustment', 0.02)
-            type_adjustment_max = interest_config.get(loan_type, {}).get('max_adjustment', 0.04)
-            type_adjustment = random.uniform(type_adjustment_min, type_adjustment_max)
+            # 优化点7: 预计算利率调整范围
+            interest_adjustments = {}
+            for loan_type in type_keys:
+                min_adj = interest_config.get(loan_type, {}).get('min_adjustment', 0.02)
+                max_adj = interest_config.get(loan_type, {}).get('max_adjustment', 0.04)
+                interest_adjustments[loan_type] = (min_adj, max_adj)
             
             credit_impact_full = interest_config.get('credit_score_impact', 0.20)
-            credit_score_normalized = (credit_score - 550) / (850 - 550)  # 归一化到0-1
-            credit_impact = credit_impact_full * (1 - credit_score_normalized)
             
-            interest_rate = base_rate + type_adjustment - credit_impact
+            # 批量生成贷款记录
+            batch_loan_records = []
+            for selected in selected_customers:
+                customer = selected['customer']
+                accounts = selected['accounts']
+                is_vip = selected['is_vip']
+                is_personal = selected['is_personal']
+                credit_score = selected['credit_score']
+                
+                # 个人客户和企业客户适用的贷款类型不同
+                if is_personal:
+                    # 个人客户：个人消费贷、住房贷款、汽车贷款、教育贷款
+                    suitable_types = personal_loan_types
+                    suitable_weights = personal_loan_weights
+                else:
+                    # 企业客户：小微企业贷
+                    suitable_types = corporate_loan_types
+                    suitable_weights = corporate_loan_weights
+                
+                # 生成贷款记录
+                loan_id = self.generate_id('L')
+                
+                # 确定贷款类型
+                loan_type = self.random_choice(suitable_types, suitable_weights)
+                
+                # 确定贷款期限
+                # 优化点8: 使用深拷贝避免修改原始配置
+                term_dist_copy = copy.deepcopy(term_config)
+                if loan_type == 'mortgage':
+                    # 住房贷款以长期为主
+                    term_dist_copy['short_term']['ratio'] = 0.05
+                    term_dist_copy['medium_term']['ratio'] = 0.15
+                    term_dist_copy['long_term']['ratio'] = 0.80
+                elif loan_type == 'small_business':
+                    # 小微企业贷以中短期为主
+                    term_dist_copy['short_term']['ratio'] = 0.30
+                    term_dist_copy['medium_term']['ratio'] = 0.60
+                    term_dist_copy['long_term']['ratio'] = 0.10
+                
+                term_categories = list(term_dist_copy.keys())
+                term_weights = [term_dist_copy[cat].get('ratio', 0.33) for cat in term_categories]
+                
+                term_category = self.random_choice(term_categories, term_weights)
+                term_months = self.random_choice(term_dist_copy[term_category]['months'])
+                
+                # 贷款金额范围 - 优化点9: 简化金额范围计算
+                if loan_type == 'personal_consumption':
+                    min_amount, max_amount = 10000, 200000
+                elif loan_type == 'mortgage':
+                    min_amount, max_amount = 300000, 3000000
+                elif loan_type == 'car':
+                    min_amount, max_amount = 50000, 500000
+                elif loan_type == 'education':
+                    min_amount, max_amount = 20000, 150000
+                else:  # 小微企业贷
+                    min_amount, max_amount = 200000, 5000000
+                
+                # 根据信用分和VIP状态调整金额上限 - 优化点10: 简化调整逻辑
+                multiplier = 1.0
+                if credit_score > 700:
+                    multiplier *= 1.2
+                if is_vip:
+                    multiplier *= 1.3
+                
+                max_amount *= multiplier
+                
+                # 生成贷款金额
+                loan_amount = round(random.uniform(min_amount, max_amount), 2)
+                
+                # 计算利率 - 优化点11: 简化利率计算
+                min_adj, max_adj = interest_adjustments.get(loan_type, (0.02, 0.04))
+                type_adjustment = random.uniform(min_adj, max_adj)
+                
+                credit_score_normalized = min(1.0, max(0.0, (credit_score - 550) / (850 - 550)))
+                credit_impact = credit_impact_full * (1 - credit_score_normalized)
+                
+                interest_rate = base_rate + type_adjustment - credit_impact
+                
+                if is_vip:
+                    interest_rate = max(0.01, interest_rate * 0.9)  # VIP客户利率优惠10%
+                
+                interest_rate = round(interest_rate, 4)
+                
+                # 生成申请日期 - 优化点12: 简化日期计算
+                days_ago = random.randint(30, 365)
+                application_date = today - datetime.timedelta(days=days_ago)
+                
+                # 确定贷款规模以设置审批时间
+                size_category = 'small' if loan_amount < 100000 else ('medium' if loan_amount < 1000000 else 'large')
+                
+                # 审批时间
+                min_approval_days = approval_config.get(size_category, {}).get('min_days', 3)
+                max_approval_days = approval_config.get(size_category, {}).get('max_days', 7)
+                
+                if is_vip:
+                    vip_reduction = approval_config.get('vip_time_reduction', 0.3)
+                    min_approval_days = max(1, int(min_approval_days * (1 - vip_reduction)))
+                    max_approval_days = max(2, int(max_approval_days * (1 - vip_reduction)))
+                
+                approval_days = random.randint(min_approval_days, max_approval_days)
+                approval_date = application_date + datetime.timedelta(days=approval_days)
+                
+                # 贷款状态
+                loan_status = self.random_choice(status_keys, status_weights)
+                
+                # 为贷款选择一个账户 - 优化点13: 使用随机选择而非随机抽样
+                account = accounts[random.randint(0, len(accounts)-1)] if accounts else None
+                if not account:
+                    continue
+                
+                # 创建贷款记录
+                loan_record = {
+                    'loan_id': loan_id,
+                    'customer_id': customer['customer_id'],
+                    'account_id': account['account_id'],
+                    'loan_type': loan_type,
+                    'loan_amount': loan_amount,
+                    'interest_rate': interest_rate,
+                    'term': term_months,
+                    'application_date': application_date.strftime('%Y-%m-%d'),
+                    'approval_date': approval_date.strftime('%Y-%m-%d'),
+                    'status': loan_status
+                }
+                
+                batch_loan_records.append(loan_record)
             
-            if is_vip:
-                interest_rate = max(0.01, interest_rate * 0.9)  # VIP客户利率优惠10%
-            
-            interest_rate = round(interest_rate, 4)
-            
-            # 生成申请日期（过去1-12个月内）
-            days_ago = random.randint(30, 365)
-            application_date = today - datetime.timedelta(days=days_ago)
-            
-            # 确定贷款规模以设置审批时间
-            if loan_amount < 100000:
-                size_category = 'small'
-            elif loan_amount < 1000000:
-                size_category = 'medium'
-            else:
-                size_category = 'large'
-            
-            # 审批时间
-            min_approval_days = approval_config.get(size_category, {}).get('min_days', 3)
-            max_approval_days = approval_config.get(size_category, {}).get('max_days', 7)
-            
-            if is_vip:
-                vip_reduction = approval_config.get('vip_time_reduction', 0.3)
-                min_approval_days = max(1, int(min_approval_days * (1 - vip_reduction)))
-                max_approval_days = max(2, int(max_approval_days * (1 - vip_reduction)))
-            
-            approval_days = random.randint(min_approval_days, max_approval_days)
-            approval_date = application_date + datetime.timedelta(days=approval_days)
-            
-            # 贷款状态
-            loan_status = self.random_choice(status_keys, status_weights)
-            
-            # 为贷款选择一个账户
-            account = self.random_choice(accounts)
-            
-            # 创建贷款记录
-            loan_record = {
-                'loan_id': loan_id,
-                'customer_id': customer['customer_id'],
-                'account_id': account['account_id'],
-                'loan_type': loan_type,
-                'loan_amount': loan_amount,
-                'interest_rate': interest_rate,
-                'term': term_months,
-                'application_date': application_date.strftime('%Y-%m-%d'),
-                'approval_date': approval_date.strftime('%Y-%m-%d'),
-                'status': loan_status
-            }
-            
-            loan_records.append(loan_record)
+            # 将批次结果添加到总结果
+            loan_records.extend(batch_loan_records)
         
         return loan_records
     
