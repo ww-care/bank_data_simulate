@@ -217,7 +217,7 @@ customer:
       vip:
         max: 140
         min: 35
-  total_count: 1000000
+  total_count: 10456
   type_distribution:
     corporate: 0.2
     personal: 0.8

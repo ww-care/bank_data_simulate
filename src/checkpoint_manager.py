@@ -10,6 +10,7 @@
 import os
 import uuid
 import json
+import logging
 import datetime
 from typing import List, Dict, Any, Optional
 
@@ -321,42 +322,47 @@ class CheckpointManager:
             # 准备数据
             completed_stages_json = json.dumps(self.completed_stages)
             
-            # 检查记录是否存在
-            check_sql = "SELECT id FROM generation_status WHERE id = %s"
-            result = self.db_manager.execute_query(check_sql, (self.status_id,))
+            # 使用 INSERT ... ON DUPLICATE KEY UPDATE 语法，避免分开检查和更新
+            upsert_sql = """
+            INSERT INTO generation_status 
+            (id, run_id, start_time, last_update_time, current_stage, 
+             completed_stages, stage_progress, status, details) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE 
+            run_id = VALUES(run_id),
+            last_update_time = VALUES(last_update_time),
+            current_stage = VALUES(current_stage),
+            completed_stages = VALUES(completed_stages),
+            stage_progress = VALUES(stage_progress),
+            status = VALUES(status),
+            details = VALUES(details)
+            """
             
-            if result:
-                # 更新现有记录
-                update_sql = """
-                UPDATE generation_status 
-                SET run_id = %s, last_update_time = %s, current_stage = %s, 
-                    completed_stages = %s, stage_progress = %s, status = %s, details = %s 
-                WHERE id = %s
-                """
-                self.db_manager.execute_update(
-                    update_sql, 
-                    (self.run_id, self.last_update_time, self.current_stage, 
-                     completed_stages_json, self.stage_progress, self.status, 
-                     self.details, self.status_id)
-                )
-            else:
-                # 插入新记录
-                insert_sql = """
-                INSERT INTO generation_status 
-                (id, run_id, start_time, last_update_time, current_stage, 
-                 completed_stages, stage_progress, status, details) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """
-                self.db_manager.execute_update(
-                    insert_sql, 
-                    (self.status_id, self.run_id, self.start_time, self.last_update_time, 
-                     self.current_stage, completed_stages_json, self.stage_progress, 
-                     self.status, self.details)
-                )
+            self.db_manager.execute_update(
+                upsert_sql, 
+                (self.status_id, self.run_id, self.start_time, self.last_update_time, 
+                 self.current_stage, completed_stages_json, self.stage_progress, 
+                 self.status, self.details)
+            )
+            
+            if self.logger:  # 简化检查，不使用isEnabledFor
+                self.logger.debug(f"状态保存成功: {self.status_id}, 阶段: {self.current_stage}, 进度: {self.stage_progress:.1f}%")
                 
         except Exception as e:
             if self.logger:
                 self.logger.error(f"保存状态失败: {str(e)}")
+                # 添加更多诊断信息
+                self.logger.error(f"状态ID: {self.status_id}, 运行ID: {self.run_id}, 当前阶段: {self.current_stage}")
+                try:
+                    # 尝试检查状态是否存在
+                    check_sql = "SELECT id FROM generation_status WHERE id = %s"
+                    result = self.db_manager.execute_query(check_sql, (self.status_id,))
+                    if result:
+                        self.logger.error(f"状态记录已存在，无法插入")
+                    else:
+                        self.logger.error(f"状态记录不存在，但仍然无法插入")
+                except Exception as check_error:
+                    self.logger.error(f"尝试检查状态时出错: {str(check_error)}")
 
 
 # 单例模式

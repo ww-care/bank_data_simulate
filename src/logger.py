@@ -26,6 +26,17 @@ class Logger:
         'critical': logging.CRITICAL
     }
     
+    def isEnabledFor(self, level):
+        """检查是否启用了指定级别的日志
+        
+        Args:
+            level: 日志级别数值（如logging.DEBUG=10）
+            
+        Returns:
+            是否启用了该级别的日志
+        """
+        return level >= self.level
+    
     def __init__(self, name: str = 'bank_data_simulation', log_dir: str = None, 
                  level: str = 'info', console_output: bool = True, file_output: bool = True,
                  max_bytes: int = 10485760, backup_count: int = 10):

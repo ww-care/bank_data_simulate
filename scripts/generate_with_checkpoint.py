@@ -122,6 +122,15 @@ def main():
         
         # 执行数据生成
         start_time = time.time()
+        # 如果是恢复模式，应该保留原有的运行ID，不需要重新设置
+        # 只在非恢复模式下设置新的运行ID
+        if not args.resume:
+            run_id = f"RUN_{int(start_time)}"
+            g_logger.info(f"使用新的运行ID: {run_id}")
+            executor.checkpoint_manager.run_id = run_id
+        else:
+            g_logger.info(f"继续使用原有运行ID: {executor.checkpoint_manager.run_id}")
+        
         stats = executor.execute(start_date, end_date)
         end_time = time.time()
         

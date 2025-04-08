@@ -686,7 +686,7 @@ class GenerationExecutor:
             active_accounts = active_accounts[:1000]
         
         # 分割时间范围为多个小批次
-        date_ranges = self.time_manager._split_date_range(start_date, end_date, days_per_batch=15)
+        date_ranges = self.time_manager.split_date_range(start_date, end_date, days_per_batch=15)
         total_date_ranges = len(date_ranges)
         
         # 生成交易数据

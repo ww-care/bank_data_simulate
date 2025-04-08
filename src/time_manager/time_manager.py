@@ -434,6 +434,32 @@ class TimeManager:
             
         return date + datetime.timedelta(days=days)
     
+    def split_date_range(self, start_date: datetime.date, end_date: datetime.date,
+                        days_per_batch: int = 30) -> List[Tuple[datetime.date, datetime.date]]:
+        """
+        将日期范围分割为多个日期段
+        
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+            days_per_batch: 每个日期段的天数
+            
+        Returns:
+            日期段列表，每个元素为(开始日期, 结束日期)
+        """
+        if start_date > end_date:
+            raise ValueError("开始日期必须早于结束日期")
+        
+        date_ranges = []
+        current_date = start_date
+        
+        while current_date <= end_date:
+            batch_end = min(current_date + datetime.timedelta(days=days_per_batch-1), end_date)
+            date_ranges.append((current_date, batch_end))
+            current_date = batch_end + datetime.timedelta(days=1)
+        
+        return date_ranges
+    
     def generate_date_range(self, start_date: Union[datetime.date, str], 
                            end_date: Union[datetime.date, str]) -> List[datetime.date]:
         """
@@ -459,7 +485,8 @@ class TimeManager:
             current_date = current_date + datetime.timedelta(days=1)
             
         return date_list
-    
+
+
     def format_time_for_db(self, dt: Optional[datetime.datetime] = None) -> str:
         """
         格式化时间为数据库可用的格式

@@ -160,18 +160,77 @@ class DatabaseManager:
             cursor = self.connection.cursor()
             start_time = time.time()
             
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
+            # 记录SQL语句（用于调试）
+            truncated_query = query[:500] + "..." if len(query) > 500 else query
+            self.logger.debug(f"执行更新SQL: {truncated_query}")
             
-            affected_rows = cursor.rowcount
-            self.connection.commit()
-            
-            elapsed_time = time.time() - start_time
-            self.logger.debug(f"更新执行完成，耗时: {elapsed_time:.3f}秒，影响 {affected_rows} 行")
-            
-            return affected_rows
+            try:
+                if params:
+                    cursor.execute(query, params)
+                else:
+                    cursor.execute(query)
+                
+                affected_rows = cursor.rowcount
+                self.connection.commit()
+                
+                elapsed_time = time.time() - start_time
+                self.logger.debug(f"更新执行完成，耗时: {elapsed_time:.3f}秒，影响 {affected_rows} 行")
+                
+                return affected_rows
+                
+            except mysql.connector.IntegrityError as ie:
+                # 处理数据完整性错误（如主键冲突）
+                if 'Duplicate entry' in str(ie):
+                    # 检查是否包含 ON DUPLICATE KEY UPDATE
+                    if 'ON DUPLICATE KEY UPDATE' in query:
+                        # 如果是 INSERT ... ON DUPLICATE KEY UPDATE，这个错误不应该发生
+                        self.logger.error(f"带ON DUPLICATE KEY UPDATE的插入出错: {str(ie)}")
+                        self.logger.error(f"SQL: {truncated_query}")
+                        self.logger.error(f"Params: {params}")
+                        raise
+                    else:
+                        # 尝试执行更新而不是插入
+                        self.logger.warning(f"主键冲突，尝试执行更新操作: {str(ie)}")
+                        
+                        # 从错误信息中提取主键值
+                        # 预期格式: Duplicate entry 'STATUS_xxx' for key 'primary'
+                        error_parts = str(ie).split("'")
+                        if len(error_parts) > 1:
+                            primary_key_value = error_parts[1]
+                            self.logger.info(f"主键值: {primary_key_value}")
+                            
+                            # 构造更新语句（这里假设是INSERT INTO generation_status）
+                            if 'generation_status' in query:
+                                # 为了安全，只在特定表上执行这个操作
+                                try:
+                                    # 假设params是一个元组，格式为 (id, run_id, start_time, ...)
+                                    # 我们需要将其转换为更新语句。如果params结构不符合预期，这里会抛出异常
+                                    if isinstance(params, tuple) and len(params) >= 8:
+                                        update_query = """
+                                        UPDATE generation_status 
+                                        SET run_id = %s, last_update_time = %s, current_stage = %s, 
+                                            completed_stages = %s, stage_progress = %s, status = %s, details = %s 
+                                        WHERE id = %s
+                                        """
+                                        # 重新排列参数以匹配更新语句
+                                        update_params = (params[1], params[3], params[4], 
+                                                         params[5], params[6], params[7], 
+                                                         params[8] if len(params) > 8 else '', primary_key_value)
+                                        
+                                        # 执行更新
+                                        cursor = self.connection.cursor()
+                                        cursor.execute(update_query, update_params)
+                                        affected_rows = cursor.rowcount
+                                        self.connection.commit()
+                                        
+                                        self.logger.info(f"成功将插入转换为更新，影响 {affected_rows} 行")
+                                        return affected_rows
+                                except Exception as convert_error:
+                                    self.logger.error(f"尝试将插入转换为更新时出错: {str(convert_error)}")
+                
+                # 如果无法转换或其他完整性错误，回滚并抛出异常
+                self.connection.rollback()
+                raise
         
         except Error as e:
             self.logger.error(f"更新执行错误: {str(e)}")
@@ -705,7 +764,7 @@ class DatabaseManager:
                 
                 self.logger.info(f"第 {batch_num} 批导入完成，影响 {affected_rows} 行")
             
-            self.logger.info(f"表 {table_name} 数据导入完成，共导入 {total_imported} 条记录")
+                self.logger.info(f"表 {table_name} 数据导入完成，共导入 {total_imported} 条记录")
             return total_imported
         
         except Exception as e:

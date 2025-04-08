@@ -656,7 +656,11 @@ class FundAccountGenerator(BaseEntityGenerator):
             account_count = max(1, int(np.random.normal(account_count_mean, account_count_std)))
             
             # 客户注册日期
-            registration_date = datetime.datetime.strptime(customer['registration_date'], '%Y-%m-%d').date()
+            if isinstance(customer['registration_date'], str):
+                registration_date = datetime.datetime.strptime(customer['registration_date'], '%Y-%m-%d').date()
+            else:
+                # 如果已经是date对象，直接使用
+                registration_date = customer['registration_date']
             
             # 为客户生成账户
             for _ in range(account_count):
@@ -2080,19 +2084,34 @@ class ChannelProfileGenerator(BaseEntityGenerator):
                     # 从APP用户数据获取最近登录日期
                     last_login_str = app_users_dict[customer_id].get('last_login_date')
                     if last_login_str:
-                        last_login_date = datetime.datetime.strptime(last_login_str, '%Y-%m-%d').date()
+                        # 检查last_login_str的类型
+                        if isinstance(last_login_str, str):
+                            last_login_date = datetime.datetime.strptime(last_login_str, '%Y-%m-%d').date()
+                        else:
+                            # 如果已经是date对象，直接使用
+                            last_login_date = last_login_str
                         last_active_days[channel] = (today - last_login_date).days
                 elif channel == 'wechat' and customer_id in wechat_followers_dict:
                     # 从公众号粉丝数据获取最近阅读日期
                     last_read_str = wechat_followers_dict[customer_id].get('last_read_date')
                     if last_read_str:
-                        last_read_date = datetime.datetime.strptime(last_read_str, '%Y-%m-%d').date()
+                        # 检查last_read_str的类型
+                        if isinstance(last_read_str, str):
+                            last_read_date = datetime.datetime.strptime(last_read_str, '%Y-%m-%d').date()
+                        else:
+                            # 如果已经是date对象，直接使用
+                            last_read_date = last_read_str
                         last_active_days[channel] = (today - last_read_date).days
                 elif channel == 'work_wechat' and customer_id in work_wechat_contacts_dict:
                     # 从企业微信联系人数据获取最近联系日期
                     last_contact_str = work_wechat_contacts_dict[customer_id].get('last_contact_date')
                     if last_contact_str:
-                        last_contact_date = datetime.datetime.strptime(last_contact_str, '%Y-%m-%d').date()
+                        # 检查last_contact_str的类型
+                        if isinstance(last_contact_str, str):
+                            last_contact_date = datetime.datetime.strptime(last_contact_str, '%Y-%m-%d').date()
+                        else:
+                            # 如果已经是date对象，直接使用
+                            last_contact_date = last_contact_str
                         last_active_days[channel] = (today - last_contact_date).days
                 else:
                     # 其他渠道随机生成
