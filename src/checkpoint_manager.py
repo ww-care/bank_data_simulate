@@ -81,7 +81,7 @@ class CheckpointManager:
         );
         """
         try:
-            self.db_manager.execute_query(create_table_sql, fetch=False)
+            self.db_manager.execute_update(create_table_sql)
             if self.logger:
                 self.logger.info("状态表检查或创建完成")
         except Exception as e:
@@ -333,12 +333,11 @@ class CheckpointManager:
                     completed_stages = %s, stage_progress = %s, status = %s, details = %s 
                 WHERE id = %s
                 """
-                self.db_manager.execute_query(
+                self.db_manager.execute_update(
                     update_sql, 
                     (self.run_id, self.last_update_time, self.current_stage, 
                      completed_stages_json, self.stage_progress, self.status, 
-                     self.details, self.status_id),
-                    fetch=False
+                     self.details, self.status_id)
                 )
             else:
                 # 插入新记录
@@ -348,12 +347,11 @@ class CheckpointManager:
                  completed_stages, stage_progress, status, details) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
-                self.db_manager.execute_query(
+                self.db_manager.execute_update(
                     insert_sql, 
                     (self.status_id, self.run_id, self.start_time, self.last_update_time, 
                      self.current_stage, completed_stages_json, self.stage_progress, 
-                     self.status, self.details),
-                    fetch=False
+                     self.status, self.details)
                 )
                 
         except Exception as e:

@@ -8,7 +8,9 @@
 - **实时数据生成**: 定时执行，生成增量交易数据，模拟真实业务流
 - **业务规则符合**: 生成的数据符合银行业务规则和实体间关系约束
 - **时间分布合理**: 考虑工作时间、非工作时间、周末等因素影响的交易频率
+- **断点续传功能**: 支持中断后从断点处恢复，解决长时间运行的稳定性问题
 - **高度可配置**: 通过配置文件灵活调整数据生成参数和规则
+- **进度跟踪**: 提供详细的生成进度跟踪，实时监控生成状态
 
 ## 系统架构
 
@@ -19,6 +21,7 @@
 - **时间管理模块**: 处理系统中所有与时间相关的操作
 - **数据生成模块**: 生成符合业务规则的模拟数据
 - **调度管理模块**: 管理实时数据生成的定时任务
+- **状态管理模块**: 跟踪和管理数据生成状态，支持断点续传
 
 ## 数据模型
 
@@ -73,6 +76,29 @@
    - 根据需要调整 `config/bank_data_simulation_config.yaml` 中的各项规则参数
 
 ## 使用方法
+
+### 带断点续传的数据生成
+
+首先创建断点状态表：
+
+```
+python scripts/create_checkpoint_table.py
+```
+
+然后使用断点续传方式生成数据：
+
+```
+python scripts/generate_with_checkpoint.py
+```
+
+可选参数：
+- `--resume`: 从上次中断点恢复运行
+- `--skip-to`: 跳过前面的阶段，从指定阶段开始生成
+- `--batch-size`: 设置批处理大小
+- `--log-level`: 设置日志级别
+- `--clear-history`: 清除所有历史状态记录
+
+详细用法请参考 [断点续传功能使用指南](docs/断点续传功能使用指南.md)
 
 ### 生成历史数据
 
@@ -133,20 +159,27 @@ bank_data_simulation/
 ├── config/                 # 配置文件目录
 │   ├── database.ini        # 数据库连接配置
 │   └── bank_data_simulation_config.yaml  # 数据生成规则配置
+├── docs/                   # 文档目录
+│   ├── 断点续传功能使用指南.md  # 断点续传功能说明
+│   └── 更新日志.md            # 更新历史
 ├── logs/                   # 日志文件目录
 ├── scripts/                # 脚本文件目录
-│   ├── run_historical_data.py  # 历史数据生成脚本
-│   ├── run_realtime_data.py    # 实时数据生成脚本
-│   └── scheduler.py            # 调度管理脚本
+│   ├── create_checkpoint_table.py  # 创建断点状态表
+│   ├── generate_with_checkpoint.py # 断点续传数据生成脚本
+│   ├── run_historical_data.py      # 历史数据生成脚本
+│   ├── run_realtime_data.py        # 实时数据生成脚本
+│   └── scheduler.py                # 调度管理脚本
 ├── src/                    # 源代码目录
-│   ├── config_manager.py   # 配置管理模块
-│   ├── database_manager.py # 数据库操作模块
-│   ├── logger.py           # 日志管理模块
-│   ├── utils.py            # 工具函数模块
-│   ├── data_generator/     # 数据生成模块
-│   ├── data_exporter/      # 数据导出模块
-│   └── time_manager/       # 时间管理模块
+│   ├── checkpoint_manager.py  # 断点状态管理模块
+│   ├── config_manager.py      # 配置管理模块
+│   ├── database_manager.py    # 数据库操作模块
+│   ├── generation_executor.py # 生成执行器模块
+│   ├── logger.py              # 日志管理模块
+│   ├── data_validator.py      # 数据验证模块
+│   ├── data_generator/        # 数据生成模块
+│   └── time_manager/          # 时间管理模块
 ├── tests/                  # 测试代码目录
+├── tools/                  # 工具脚本目录
 ├── .gitignore              # Git忽略文件
 ├── README.md               # 项目说明文档
 └── requirements.txt        # 项目依赖包
@@ -158,6 +191,8 @@ bank_data_simulation/
 - [x] 数据模型实现 (设计和创建数据库表结构、实现基础实体生成器)
 - [x] 历史数据生成功能 (实现历史数据的完整生成流程)
 - [x] 实时数据生成功能 (实现增量数据生成、时间连续性保证)
-- [ ] 系统集成与测试 (集成各功能模块、性能测试和优化)
+- [x] 断点续传功能 (实现长时间运行的中断恢复机制)
+- [ ] 系统监控界面 (添加Web界面监控数据生成进度)
+- [ ] 数据可视化 (生成数据的可视化统计报表)
 
-当前状态：数据生成器与运行脚本已完全集成，可以生成历史数据和实时数据。下一步是进行系统性能测试和优化。
+当前状态：系统已实现基础数据生成功能，并添加了断点续传机制，提升了长时间运行的稳定性和可靠性。下一步是优化系统性能和提升用户体验。

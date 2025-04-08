@@ -80,7 +80,7 @@ def main():
         # 如果需要清除历史状态
         if args.clear_history:
             g_logger.info("清除所有历史状态记录...")
-            db_manager.execute_query("DELETE FROM generation_status", fetch=False)
+            db_manager.execute_update("DELETE FROM generation_status")
             g_logger.info("历史状态记录已清除")
             if not args.resume and not args.skip_to:
                 return 0

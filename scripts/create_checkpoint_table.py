@@ -40,7 +40,8 @@ def create_checkpoint_table():
         );
         """
         
-        db_manager.execute_query(create_table_sql, fetch=False)
+        # 使用 execute_update 而不是 execute_query，因为这是一个更新操作
+        db_manager.execute_update(create_table_sql)
         logger.info("断点状态表创建成功")
         
         return True
